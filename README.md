@@ -1,5 +1,10 @@
 # 🏪 Shop Sales Automation
 
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Tests](https://img.shields.io/badge/tests-14%20passed-brightgreen)]()
+
 **Messy sales CSV in — clean data, quality report & dashboard out.**
 
 A professional data-cleaning pipeline for small shops: it takes the kind of
@@ -7,6 +12,9 @@ messy sales records shopkeepers actually keep (missing values, " CHAI " vs
 "chai", `Rs 1,200` prices, mixed date formats, duplicates, outliers) and
 turns them into trustworthy data — with a full report of everything it fixed.
 Nothing is deleted silently: bad rows go to quarantine for review.
+
+**Perfect for:** retail shops, distributors, and small businesses that track
+sales in Excel/CSV and need reliable numbers without manual cleanup.
 
 ## What it cleans
 
