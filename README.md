@@ -80,3 +80,5 @@ so every feature is demonstrable in one run.
 ```bash
 pytest -q
 ```
+
+CI runs the suite on every push and PR.
