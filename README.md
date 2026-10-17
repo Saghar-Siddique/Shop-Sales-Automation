@@ -4,7 +4,7 @@
 [![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![CI](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml/badge.svg)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-14%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-16%20passed-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 **Messy sales CSV in — clean data, quality report & dashboard out.**
@@ -63,6 +63,7 @@ sales_automation/
   cli.py         # argparse entry point
 dashboard_app.py # Streamlit dashboard
 tests/           # pytest suite (cleaner, analyzer, CLI)
+evals/           # cleaner accuracy eval (70 tough cases)
 data/
   sales_messy.csv  # 26-row sample with 8 kinds of mess
 requirements.txt
@@ -82,3 +83,20 @@ pytest -q
 ```
 
 CI runs the suite on every push and PR.
+
+## Evals
+
+`tough, adversarial` cleaner eval — 70 cases with ground truth
+(`evals/cleaner_cases.csv`): fuzzy-merge traps, false-merge traps
+(similar names that are *different* products), quarantine edge cases,
+currency quirks, fractional quantities, garbage dates and duplicates.
+
+```bash
+python evals/run_cleaner_eval.py
+# Overall: 66/70 = 94% (measured Oct 2026)
+```
+
+Per-bucket: standardize 28/32 · no-false-merge 13/13 · quarantine 8/8 ·
+numbers 6/6 · missing-item 3/3 · dates 4/4 · duplicates 4/4.
+The eval caught and fixed two real issues: a fuzzy chain-merge
+overwrite bug and `'Rs. 1,200'` (period) prices being quarantined.

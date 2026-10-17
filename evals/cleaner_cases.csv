@@ -1,0 +1,71 @@
+case_id,bucket,Date,Item,Qty,Price,expected_verdict,expected_item,expected_qty,expected_price,expected_date,notes
+S01,standardize,01/10/2026,Chai,2,100,clean,Chai,2,100.0,2026-10-01,
+S02,standardize,02/10/2026,Chai,3,105,clean,Chai,3,105.0,2026-10-02,
+S03,standardize,03/10/2026,Chai,1,110,clean,Chai,1,110.0,2026-10-03,
+S04,standardize,04/10/2026,Chai,2,95,clean,Chai,2,95.0,2026-10-04,
+S05,standardize,05/10/2026,Chai,3,100,clean,Chai,3,100.0,2026-10-05,
+S06,standardize,06/10/2026,Chai,1,105,clean,Chai,1,105.0,2026-10-06,
+S07,standardize,07/10/2026,chai,2,110,clean,Chai,2,110.0,2026-10-07,
+S08,standardize,08/10/2026,chai,3,95,clean,Chai,3,95.0,2026-10-08,
+S09,standardize,09/10/2026, CHAI ,1,100,clean,Chai,1,100.0,2026-10-09,
+S10,standardize,10/10/2026,Chaai,2,105,clean,Chai,2,105.0,2026-10-10,CHAIN TRAP: suspected mapping-overwrite bug — must still become Chai
+S11,standardize,11/10/2026,Chaai,3,110,clean,Chai,3,110.0,2026-10-11,CHAIN TRAP: suspected mapping-overwrite bug — must still become Chai
+S12,standardize,12/10/2026,Chaai,1,95,clean,Chai,1,95.0,2026-10-12,CHAIN TRAP: suspected mapping-overwrite bug — must still become Chai
+S13,standardize,13/10/2026,Chaai,2,100,clean,Chai,2,100.0,2026-10-13,CHAIN TRAP: suspected mapping-overwrite bug — must still become Chai
+S14,standardize,14/10/2026,Chaaii,3,105,clean,Chai,3,105.0,2026-10-14,CHAIN TRAP: suspected mapping-overwrite bug — must still become Chai
+S15,standardize,15/10/2026,Daal,2,60,clean,Daal,2,60.0,2026-10-15,
+S16,standardize,16/10/2026,Daal,2,60,clean,Daal,2,60.0,2026-10-16,
+S17,standardize,17/10/2026,Daal,2,60,clean,Daal,2,60.0,2026-10-17,
+S18,standardize,18/10/2026,dal,2,60,clean,Daal,2,60.0,2026-10-18,
+S19,standardize,19/10/2026,dal,2,60,clean,Daal,2,60.0,2026-10-19,
+S20,standardize,20/10/2026,DAAL,2,60,clean,Daal,2,60.0,2026-10-20,
+S21,standardize,21/10/2026,Sugar,1,120,clean,Sugar,1,120.0,2026-10-21,
+S22,standardize,22/10/2026,Sugar,1,120,clean,Sugar,1,120.0,2026-10-22,
+S23,standardize,23/10/2026,Sugar,1,120,clean,Sugar,1,120.0,2026-10-23,
+S24,standardize,24/10/2026,Sugar,1,120,clean,Sugar,1,120.0,2026-10-24,
+S25,standardize,25/10/2026,suger,1,120,clean,Sugar,1,120.0,2026-10-25,"TOUGH: 'suger' typo, similarity ~0.80 vs 0.85 cutoff"
+S26,standardize,26/10/2026,suger,1,120,clean,Sugar,1,120.0,2026-10-26,"TOUGH: 'suger' typo, similarity ~0.80 vs 0.85 cutoff"
+S27,standardize,27/10/2026,SUGAR,1,120,clean,Sugar,1,120.0,2026-10-27,
+S28,standardize,28/10/2026,Aata,5,80,clean,Aata,5,80.0,2026-10-28,
+S29,standardize,01/10/2026,Aata,5,80,clean,Aata,5,80.0,2026-10-01,
+S30,standardize,02/10/2026,Aata,5,80,clean,Aata,5,80.0,2026-10-02,
+S31,standardize,03/10/2026,Atta,5,80,clean,Aata,5,80.0,2026-10-03,"TOUGH: 'Atta' vs 'Aata' spelling variant, similarity ~0.75"
+S32,standardize,04/10/2026,Atta,5,80,clean,Aata,5,80.0,2026-10-04,"TOUGH: 'Atta' vs 'Aata' spelling variant, similarity ~0.75"
+F33,no-false-merge,05/10/2026,Milk,2,150,clean,Milk,2,150.0,2026-10-05,"TRAP: similar name, different product — must NOT merge"
+F34,no-false-merge,06/10/2026,Milk,2,150,clean,Milk,2,150.0,2026-10-06,"TRAP: similar name, different product — must NOT merge"
+F35,no-false-merge,07/10/2026,Milk,2,150,clean,Milk,2,150.0,2026-10-07,"TRAP: similar name, different product — must NOT merge"
+F36,no-false-merge,08/10/2026,Milk Powder,2,150,clean,Milk Powder,2,150.0,2026-10-08,"TRAP: similar name, different product — must NOT merge"
+F37,no-false-merge,09/10/2026,Milk Powder,2,150,clean,Milk Powder,2,150.0,2026-10-09,"TRAP: similar name, different product — must NOT merge"
+F38,no-false-merge,10/10/2026,Rice,2,150,clean,Rice,2,150.0,2026-10-10,"TRAP: similar name, different product — must NOT merge"
+F39,no-false-merge,11/10/2026,Rice,2,150,clean,Rice,2,150.0,2026-10-11,"TRAP: similar name, different product — must NOT merge"
+F40,no-false-merge,12/10/2026,Rice,2,150,clean,Rice,2,150.0,2026-10-12,"TRAP: similar name, different product — must NOT merge"
+F41,no-false-merge,13/10/2026,Rice Flour,2,150,clean,Rice Flour,2,150.0,2026-10-13,"TRAP: similar name, different product — must NOT merge"
+F42,no-false-merge,14/10/2026,Rice Flour,2,150,clean,Rice Flour,2,150.0,2026-10-14,"TRAP: similar name, different product — must NOT merge"
+F43,no-false-merge,15/10/2026,Besan,2,150,clean,Besan,2,150.0,2026-10-15,"TRAP: similar name, different product — must NOT merge"
+F44,no-false-merge,16/10/2026,Besan,2,150,clean,Besan,2,150.0,2026-10-16,"TRAP: similar name, different product — must NOT merge"
+F45,no-false-merge,17/10/2026,Besan Laddu,2,150,clean,Besan Laddu,2,150.0,2026-10-17,"TRAP: similar name, different product — must NOT merge"
+Q01,quarantine,10/10/2026,Milk,two,100,quarantined,,,,,unparseable qty
+Q02,quarantine,10/10/2026,Milk,5,abc,quarantined,,,,,unparseable price
+Q03,quarantine,10/10/2026,Milk,-5,100,quarantined,,,,,negative qty
+Q04,quarantine,10/10/2026,Milk,5,-100,quarantined,,,,,negative price
+Q05,quarantine,10/10/2026,Milk,,100,quarantined,,,,,empty qty
+Q06,quarantine,10/10/2026,Milk,5,,quarantined,,,,,empty price
+Q07,quarantine,11/10/2026,Chai,0,50,clean,Chai,0,50.0,2026-10-11,ADVISORY: zero-qty sale is kept (kept by design?)
+Q08,quarantine,11/10/2026,Sugar,1,"Rs. 1,200",clean,Sugar,1,1200.0,2026-10-11,"TOUGH: 'Rs.' with period — very common PK format, likely mis-parsed"
+N01,numbers,12/10/2026,Milk,2,"Rs 1,200",clean,Milk,2,1200.0,2026-10-12,
+N02,numbers,12/10/2026,Milk,2,"1,500 PKR",clean,Milk,2,1500.0,2026-10-12,
+N03,numbers,12/10/2026,Milk,2,$20,clean,Milk,2,20.0,2026-10-12,
+N04,numbers,12/10/2026,Milk,3.0,100,clean,Milk,3,100.0,2026-10-12,
+N05,numbers,12/10/2026,Milk,2.5,100,clean,Milk,2,100.0,2026-10-12,ADVISORY: fractional qty 2.5 silently rounded to 2
+N06,numbers,12/10/2026,Milk,4, 750 ,clean,Milk,4,750.0,2026-10-12,
+M01,missing-item,13/10/2026,,2,100,dropped,,,,,empty item -> dropped
+M02,missing-item,13/10/2026,N/A,2,100,dropped,,,,,TOUGH: 'N/A' should count as missing
+M03,missing-item,13/10/2026,   ,2,100,dropped,,,,,whitespace item -> dropped
+D01,dates,12/10/2026,Milk,1,100,clean,Milk,1,100.0,2026-10-12,DD/MM/YYYY dayfirst
+D02,dates,2026-10-13,Milk,1,100,clean,Milk,1,100.0,2026-10-13,ISO format
+D03,dates,Oct 14 2026,Milk,1,100,clean,Milk,1,100.0,2026-10-14,text month
+D04,dates,45/13/2026,Milk,1,100,clean,Milk,1,100.0,NaT,"ADVISORY: garbage date kept as NaT, not quarantined"
+U01,duplicates,05/10/2026,Milk,2,100,clean,Milk,2,100.0,2026-10-05,first of identical pair
+U02,duplicates,05/10/2026,Milk,2,100,dropped,,,,,exact duplicate -> removed
+U03,duplicates,06/10/2026,Rice,1,200,clean,Rice,1,200.0,2026-10-06,ADVISORY: legit repeat sales look identical to dupes
+U04,duplicates,06/10/2026,Rice,1,200,dropped,,,,,identical -> removed (see advisory)

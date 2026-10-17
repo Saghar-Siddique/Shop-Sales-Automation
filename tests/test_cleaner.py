@@ -104,3 +104,18 @@ def test_sample_csv_integration():
     # every fuzzy variant collapsed
     assert "Chaai" not in result.clean["Item"].tolist()
     assert "Chai" in result.clean["Item"].tolist()
+
+
+def test_standardize_names_chain_no_overwrite():
+    # 'Chaaii' ~ 'Chaai' ~ 'Chai': chained variants must all resolve to 'Chai',
+    # not stop at the intermediate 'Chaai' (mapping-overwrite regression).
+    s = pd.Series(["Chai"] * 6 + ["Chaai"] * 4 + ["Chaaii"])
+    out, changed = standardize_names(s, cutoff=0.85)
+    assert set(out.unique()) == {"Chai"}
+    assert changed == 5
+
+
+def test_strip_currency_rs_with_period():
+    # 'Rs.' with a trailing period is a common Pakistani price format.
+    out = strip_currency(pd.Series(["Rs. 1,200", "Rs 500", "1,500 PKR"]))
+    assert out.tolist() == [1200.0, 500.0, 1500.0]

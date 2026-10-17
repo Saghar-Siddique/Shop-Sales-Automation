@@ -69,7 +69,7 @@ class CleanResult:
 # Individual cleaning steps
 # ---------------------------------------------------------------------------
 
-_CURRENCY_RE = re.compile(r"(?i)\b(rs|pkr|usd)\b|[$€£]")
+_CURRENCY_RE = re.compile(r"(?i)\b(rs|pkr|usd)\b\.?|[$€£]")
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -117,7 +117,12 @@ def parse_dates(series: pd.Series) -> pd.Series:
 
 
 def standardize_names(series: pd.Series, cutoff: float = 0.85) -> tuple[pd.Series, int]:
-    """Fuzzy-map variants (' CHAI ', 'chai', 'Chai') to the most common form."""
+    """Fuzzy-map variants (' CHAI ', 'chai', 'Chai') to the most common form.
+
+    Two passes: first group close matches without overwriting an earlier
+    group's decision, then resolve chains (e.g. 'Chaaii' -> 'Chaai' -> 'Chai')
+    to the final canonical name.
+    """
     counts = series.value_counts()
     mapping: dict[str, str] = {}
     for name in counts.index:
@@ -126,8 +131,18 @@ def standardize_names(series: pd.Series, cutoff: float = 0.85) -> tuple[pd.Serie
         matches = get_close_matches(name, counts.index.tolist(), n=10, cutoff=cutoff)
         canonical = max(matches, key=lambda m: counts[m]) if matches else name
         for m in matches:
-            mapping[m] = canonical
-    result = series.map(lambda x: mapping.get(x, x))
+            if m not in mapping:
+                mapping[m] = canonical
+
+    def resolve(name: str) -> str:
+        seen = set()
+        while name in mapping and mapping[name] != name and name not in seen:
+            seen.add(name)
+            name = mapping[name]
+        return name
+
+    resolved = {name: resolve(name) for name in mapping}
+    result = series.map(lambda x: resolved.get(x, x))
     changed = int((result != series).sum())
     return result, changed
 
