@@ -93,10 +93,18 @@ currency quirks, fractional quantities, garbage dates and duplicates.
 
 ```bash
 python evals/run_cleaner_eval.py
-# Overall: 66/70 = 94% (measured Oct 2026)
+# Overall: 78/82 = 95% (measured Oct 2026)
 ```
 
-Per-bucket: standardize 28/32 · no-false-merge 13/13 · quarantine 8/8 ·
+Per-bucket: standardize 28/32 · no-false-merge 25/25 · quarantine 8/8 ·
 numbers 6/6 · missing-item 3/3 · dates 4/4 · duplicates 4/4.
 The eval caught and fixed two real issues: a fuzzy chain-merge
 overwrite bug and `'Rs. 1,200'` (period) prices being quarantined.
+
+**Threshold choice (precision-first):** the 0.85 fuzzy cutoff is
+deliberate, not arbitrary. Adversarial distinct-product pairs
+(`Cake`/`Cupcake` 0.73, `Coffee`/`Cold Coffee` 0.71, `Doodh`/`Doodhpatti`
+0.67) sit just below real typo variants (`suger` 0.80, `Atta` 0.75) —
+no single threshold separates them with margin. For a money tool a
+*missed* merge (visible as two lines) is safer than a *wrong* merge
+(silently mixed sales totals), so the cutoff favors precision.
