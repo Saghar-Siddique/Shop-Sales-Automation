@@ -6,3 +6,7 @@ sales_clean.csv
 report.txt
 quarantined.csv
 .streamlit/
+
+*.egg-info/
+build/
+dist/

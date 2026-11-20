@@ -4,7 +4,7 @@
 [![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![CI](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml/badge.svg)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-23%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-26%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 **Messy sales CSV in — clean data, quality report & dashboard out.**
@@ -33,14 +33,17 @@ sales in Excel/CSV and need reliable numbers without manual cleanup.
 ## Quickstart
 
 ```bash
-pip install -r requirements.txt
+pip install -e .   # installs the `sales-automation` command
 
 # CLI: clean the sample messy file
-python -m sales_automation.cli data/sales_messy.csv -o out/
+sales-automation data/sales_messy.csv -o out/
 
 # Excel output instead of CSV: sales_clean.xlsx workbook with
 # Cleaned Data, Summary and Quarantined sheets
-python -m sales_automation.cli data/sales_messy.csv -o out/ --format xlsx
+sales-automation data/sales_messy.csv -o out/ --format xlsx
+
+# No install? Run the module directly instead:
+python -m sales_automation.cli data/sales_messy.csv -o out/
 
 # Interactive dashboard
 streamlit run dashboard_app.py
