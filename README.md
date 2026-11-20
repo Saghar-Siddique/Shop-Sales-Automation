@@ -4,7 +4,7 @@
 [![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![CI](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml/badge.svg)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-16%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-23%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 **Messy sales CSV in — clean data, quality report & dashboard out.**
@@ -38,12 +38,16 @@ pip install -r requirements.txt
 # CLI: clean the sample messy file
 python -m sales_automation.cli data/sales_messy.csv -o out/
 
+# Excel output instead of CSV: sales_clean.xlsx workbook with
+# Cleaned Data, Summary and Quarantined sheets
+python -m sales_automation.cli data/sales_messy.csv -o out/ --format xlsx
+
 # Interactive dashboard
 streamlit run dashboard_app.py
 ```
 
 CLI options: `--no-dedupe`, `--no-standardize`, `--drop-outliers`,
-`--keep-missing`, `-o/--output-dir`.
+`--keep-missing`, `--format csv|xlsx`, `-o/--output-dir`.
 
 ## Interactive dashboard
 
@@ -51,7 +55,7 @@ CLI options: `--no-dedupe`, `--no-standardize`, `--drop-outliers`,
 - ⚙️ Toggle every cleaning rule live in the sidebar and watch results change
 - 📊 KPIs, daily trend & top-items charts (Plotly)
 - 🧹 Data-quality tab: exactly what was fixed, dropped or quarantined
-- ⬇️ One-click download of the cleaned CSV
+- ⬇️ One-click download of the cleaned data as CSV or Excel (.xlsx)
 
 ## Screenshots
 
@@ -65,7 +69,7 @@ CLI options: `--no-dedupe`, `--no-standardize`, `--drop-outliers`,
 sales_automation/
   cleaner.py     # pandas cleaning pipeline (CleanConfig / CleanResult)
   analyzer.py    # KPIs, daily trend, top items
-  reporter.py    # plain-text quality report
+  reporter.py    # plain-text quality report + .xlsx workbook export
   cli.py         # argparse entry point
 dashboard_app.py # Streamlit dashboard
 tests/           # pytest suite (cleaner, analyzer, CLI)

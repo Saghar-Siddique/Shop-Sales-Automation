@@ -16,7 +16,7 @@ import streamlit as st
 
 from sales_automation import CleanConfig, clean_sales, load_csv
 from sales_automation.analyzer import daily_trend, kpis, top_items
-from sales_automation.reporter import quality_report_text
+from sales_automation.reporter import quality_report_text, save_workbook
 
 st.set_page_config(page_title="Sales Automation Dashboard", page_icon="🏪", layout="wide")
 st.title("🏪 Shop Sales Automation")
@@ -104,4 +104,10 @@ with tab_data:
     csv_bytes = df.to_csv(index=False).encode("utf-8")
     st.download_button("⬇️ Download cleaned CSV", csv_bytes,
                        file_name="sales_clean.csv", mime="text/csv",
+                       use_container_width=True)
+    xlsx_buffer = io.BytesIO()
+    save_workbook(df, stats, k, quarantined, xlsx_buffer)
+    st.download_button("⬇️ Download cleaned Excel (.xlsx)", xlsx_buffer.getvalue(),
+                       file_name="sales_clean.xlsx",
+                       mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                        use_container_width=True)
