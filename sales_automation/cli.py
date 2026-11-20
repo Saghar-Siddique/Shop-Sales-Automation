@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .cleaner import CleanConfig, clean_sales, load_csv
 from .analyzer import kpis
-from .reporter import quality_report_text, save_report
+from .reporter import quality_report_text, save_report, save_workbook
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -18,7 +18,12 @@ def build_parser() -> argparse.ArgumentParser:
         description="Clean a messy shop sales CSV and generate a report.")
     p.add_argument("input", help="Path to the messy sales CSV file")
     p.add_argument("-o", "--output-dir", default="out",
-                   help="Where to write sales_clean.csv and report.txt (default: out/)")
+                   help="Where to write the outputs (default: out/)")
+    p.add_argument("--format", choices=["csv", "xlsx"], default="csv",
+                   help="Output format for the cleaned data: csv writes "
+                        "sales_clean.csv (+ quarantined.csv), xlsx writes a "
+                        "sales_clean.xlsx workbook with Cleaned Data, Summary "
+                        "and Quarantined sheets (default: csv)")
     p.add_argument("--no-dedupe", action="store_true",
                    help="Keep duplicate rows")
     p.add_argument("--no-standardize", action="store_true",
@@ -44,11 +49,16 @@ def main(argv: list[str] | None = None) -> int:
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    clean_path = out_dir / "sales_clean.csv"
     report_path = out_dir / "report.txt"
-    result.clean.to_csv(clean_path, index=False)
-    if not result.quarantined.empty:
-        result.quarantined.to_csv(out_dir / "quarantined.csv", index=False)
+    if args.format == "xlsx":
+        clean_path = out_dir / "sales_clean.xlsx"
+        save_workbook(result.clean, result.stats, kpis(result.clean),
+                      result.quarantined, clean_path)
+    else:
+        clean_path = out_dir / "sales_clean.csv"
+        result.clean.to_csv(clean_path, index=False)
+        if not result.quarantined.empty:
+            result.quarantined.to_csv(out_dir / "quarantined.csv", index=False)
 
     report = quality_report_text(result.stats, kpis(result.clean),
                                  len(result.quarantined))
