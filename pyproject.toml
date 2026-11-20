@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shop-sales-automation"
+dynamic = ["version"]
+description = "Messy sales CSV in — clean data, quality report & dashboard out."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "streamlit>=1.40,<2",
+    "pandas>=2.0",
+    "plotly>=5.20",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+sales-automation = "sales_automation.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "sales_automation.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["sales_automation*"]
