@@ -10,7 +10,7 @@ import json
 import sys
 from pathlib import Path
 
-from .cleaner import CANONICAL_COLUMNS, CleanConfig, clean_sales, load_csv
+from .cleaner import CANONICAL_COLUMNS, CleanConfig, clean_sales, load_csv_lenient
 from .analyzer import kpis
 from .reporter import quality_report_text, save_report, save_workbook
 
@@ -131,10 +131,16 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     try:
-        raw = load_csv(args.input)
+        raw, skipped_rows = load_csv_lenient(args.input)
     except OSError as exc:
         print(f"Error: Cannot read input file {args.input!r}: {exc}", file=sys.stderr)
         return 2
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+    if skipped_rows:
+        print(f"Warning: skipped {len(skipped_rows)} malformed row(s) "
+              "(wrong number of fields) — see the report.", file=sys.stderr)
     if mapping is None:
         present = {str(c).strip().lower() for c in raw.columns}
         if not present & {"date", "item", "qty", "price"}:
@@ -147,6 +153,7 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2
+    result.stats.malformed_skipped = len(skipped_rows)
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

@@ -24,6 +24,8 @@ def summary_rows(stats: CleanStats, kpis: dict, quarantined_count: int = 0) -> l
         ("Average Bill (Rs)", kpis["avg_bill"]),
         ("Top Selling Item", kpis["top_item"]),
     ]
+    if q["Malformed rows skipped"]:
+        rows.append(("Malformed rows skipped", q["Malformed rows skipped"]))
     if quarantined_count:
         rows.append(("Quarantined rows (review)", quarantined_count))
     return rows
@@ -71,6 +73,10 @@ def quality_report_text(stats: CleanStats, kpis: dict, quarantined_count: int = 
         lines += ["",
                   f"NOTE: {quarantined_count} row(s) were quarantined for review",
                   "(unparseable or negative Qty/Price) — nothing was deleted silently."]
+    if q["Malformed rows skipped"]:
+        lines += ["",
+                  f"NOTE: {q['Malformed rows skipped']} malformed row(s) skipped at load",
+                  "(wrong number of fields) — the rest of the file was cleaned normally."]
     return "\n".join(lines)
 
 
