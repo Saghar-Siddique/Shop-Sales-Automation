@@ -32,6 +32,10 @@ class CleanConfig:
     item_column: str = "Item"
     qty_column: str = "Qty"
     price_column: str = "Price"
+    # Map non-standard CSV headers to the canonical columns, e.g.
+    # {"date": "Tarikh", "item": "Cheez"} — applied as a rename step
+    # before cleaning (Issue #2). Keys are case-insensitive.
+    column_mapping: dict[str, str] | None = None
 
 
 @dataclass
@@ -70,6 +74,78 @@ class CleanResult:
 # ---------------------------------------------------------------------------
 
 _CURRENCY_RE = re.compile(r"(?i)\b(rs|pkr|usd)\b\.?|[$€£]")
+
+
+# ---------------------------------------------------------------------------
+# Column mapping (Issue #2)
+# ---------------------------------------------------------------------------
+
+#: Canonical column keys (lowercase) -> the header names the pipeline uses.
+CANONICAL_COLUMNS: dict[str, str] = {
+    "date": "Date",
+    "item": "Item",
+    "qty": "Qty",
+    "price": "Price",
+}
+
+
+def _norm_header(name: str) -> str:
+    """Header comparison form: stripped + lowercased."""
+    return str(name).strip().lower()
+
+
+def apply_column_mapping(df: pd.DataFrame, mapping: dict[str, str] | None) -> pd.DataFrame:
+    """Rename non-standard CSV headers to the canonical Date/Item/Qty/Price.
+
+    ``mapping`` maps a canonical key (``date``/``item``/``qty``/``price``,
+    case-insensitive) to the header actually used in the CSV. Matching
+    against the CSV headers is case-insensitive; the canonical target
+    names stay exact. Keys not present in the mapping are left alone, and
+    extra columns in the CSV are ignored (kept as-is).
+
+    Raises ValueError when a mapping key is unknown, when a mapped header
+    is missing from the CSV (naming the missing header and listing the
+    headers actually found), when two mappings point at the same header,
+    or when a rename would collide with an existing canonical column.
+    """
+    if not mapping:
+        return df
+
+    normalized: dict[str, str] = {}
+    for key, actual in mapping.items():
+        k = str(key).strip().lower()
+        if k not in CANONICAL_COLUMNS:
+            raise ValueError(
+                f"Unknown column key {key!r} in column mapping; "
+                f"expected one of: {', '.join(sorted(CANONICAL_COLUMNS))}."
+            )
+        if not str(actual).strip():
+            raise ValueError(f"Column mapping for {k!r} has an empty header name.")
+        normalized[k] = str(actual).strip()
+
+    lookup = {_norm_header(c): c for c in df.columns}
+    rename: dict[str, str] = {}
+    for key, actual in normalized.items():
+        found = lookup.get(_norm_header(actual))
+        if found is None:
+            raise ValueError(
+                f"Column mapping: header {actual!r} (for "
+                f"{CANONICAL_COLUMNS[key]!r}) not found in CSV. "
+                f"Found headers: {', '.join(str(c) for c in df.columns)}."
+            )
+        target = CANONICAL_COLUMNS[key]
+        if found in rename and rename[found] != target:
+            raise ValueError(
+                f"Column mapping: headers for {rename[found]!r} and {target!r} "
+                f"both point at {actual!r}."
+            )
+        if found != target and target in df.columns:
+            raise ValueError(
+                f"Column mapping: {actual!r} cannot be renamed to {target!r} — "
+                f"the CSV already has a {target!r} column."
+            )
+        rename[found] = target
+    return df.rename(columns=rename)
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -166,6 +242,8 @@ def clean_sales(raw: pd.DataFrame, config: CleanConfig | None = None) -> CleanRe
     config = config or CleanConfig()
     stats = CleanStats(rows_in=len(raw))
     df = normalize_columns(raw)
+    if config.column_mapping:
+        df = apply_column_mapping(df, config.column_mapping)
 
     date_c, item_c = config.date_column, config.item_column
     qty_c, price_c = config.qty_column, config.price_column

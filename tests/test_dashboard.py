@@ -12,3 +12,28 @@ def test_dashboard_download_buttons():
     labels = [b.label for b in at.download_button]
     assert "⬇️ Download cleaned CSV" in labels
     assert "⬇️ Download cleaned Excel (.xlsx)" in labels
+
+
+def test_dashboard_column_mapping_input_present():
+    at = AppTest.from_file(str(APP)).run()
+    assert not at.exception
+    labels = [t.label for t in at.sidebar.text_input]
+    assert "Column mapping (optional)" in labels
+
+
+def test_dashboard_column_mapping_noop_on_sample():
+    # Mapping the sample's own headers is a no-op rename: still 26 -> 16 rows.
+    at = AppTest.from_file(str(APP)).run()
+    at.sidebar.text_input[0].set_value("date:Date,item:Item").run()
+    assert not at.exception
+    assert not at.error
+    rows_cleaned = [m for m in at.metric if m.label == "🧹 Rows cleaned"]
+    assert rows_cleaned and rows_cleaned[0].value == "26 → 16"
+
+
+def test_dashboard_column_mapping_bad_header_shows_error():
+    at = AppTest.from_file(str(APP)).run()
+    at.sidebar.text_input[0].set_value("date:Nope").run()
+    assert not at.exception
+    assert at.error
+    assert "Nope" in at.error[0].value
