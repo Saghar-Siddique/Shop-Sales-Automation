@@ -15,7 +15,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from sales_automation import CleanConfig, clean_sales, load_csv
+from sales_automation import CleanConfig, clean_sales, load_csv_lenient
 from sales_automation.analyzer import daily_trend, kpis, top_items
 from sales_automation.cli import parse_column_map
 from sales_automation.reporter import quality_report_text, save_workbook
@@ -57,22 +57,28 @@ config = CleanConfig(
 
 # ------------------------------------------------------------------ data ---
 @st.cache_data(show_spinner=False)
-def load_raw(use_sample: bool, uploaded_name: str | None, uploaded_bytes: bytes | None) -> pd.DataFrame:
+def load_raw(use_sample: bool, uploaded_name: str | None, uploaded_bytes: bytes | None) -> tuple[pd.DataFrame, list[str]]:
     if uploaded_bytes is not None:
-        return pd.read_csv(io.BytesIO(uploaded_bytes), dtype=str)
-    return load_csv("data/sales_messy.csv")
+        return load_csv_lenient(io.BytesIO(uploaded_bytes))
+    return load_csv_lenient("data/sales_messy.csv")
 
-raw = load_raw(use_sample, uploaded.name if uploaded else None,
+raw, skipped_rows = load_raw(use_sample, uploaded.name if uploaded else None,
                uploaded.getvalue() if uploaded else None)
 if not use_sample and uploaded is None:
     st.info("👆 Upload a CSV in the sidebar, or tick 'Use sample messy data'.")
     st.stop()
+
+if skipped_rows:
+    shown = skipped_rows[0][:100]
+    st.warning(f"⚠️ Skipped {len(skipped_rows)} malformed row(s) (wrong number of "
+               f"fields) — e.g. “{shown}”. The rest of the file was cleaned normally.")
 
 try:
     result = clean_sales(raw, config)
 except ValueError as exc:
     st.error(f"⚠️ {exc}")
     st.stop()
+result.stats.malformed_skipped = len(skipped_rows)
 if mapping is None:
     present = {str(c).strip().lower() for c in raw.columns}
     if not present & {"date", "item", "qty", "price"}:

@@ -4,7 +4,7 @@
 [![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![CI](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml/badge.svg)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-55%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-61%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 **Messy sales CSV in — clean data, quality report & dashboard out.**
@@ -31,6 +31,7 @@ sales in Excel/CSV and need reliable numbers without manual cleanup.
 | `12/10/2026`, `Oct 13 2026` | Mixed date formats parsed |
 | Exact duplicates | Removed (counted) |
 | Outliers (IQR rule) | Flagged by default, optionally dropped |
+| Malformed rows (wrong number of fields) | Skipped + reported — never crashes the run |
 
 ## Quickstart
 

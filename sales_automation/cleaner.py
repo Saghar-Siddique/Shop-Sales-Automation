@@ -48,6 +48,7 @@ class CleanStats:
     names_standardized: int = 0
     outliers_flagged: int = 0
     outliers_dropped: int = 0
+    malformed_skipped: int = 0  # ragged rows dropped at load (wrong field count)
 
     def as_dict(self) -> dict:
         return {
@@ -59,6 +60,7 @@ class CleanStats:
             "Item names standardized": self.names_standardized,
             "Outliers flagged": self.outliers_flagged,
             "Outliers dropped": self.outliers_dropped,
+            "Malformed rows skipped": self.malformed_skipped,
         }
 
 
@@ -314,6 +316,34 @@ def clean_sales(raw: pd.DataFrame, config: CleanConfig | None = None) -> CleanRe
     return CleanResult(clean=df, quarantined=quarantined.reset_index(drop=True), stats=stats)
 
 
+def load_csv_lenient(source) -> tuple[pd.DataFrame, list[str]]:
+    """Read a CSV, skipping malformed (ragged) rows instead of crashing.
+
+    A row with the wrong number of fields (e.g. a stray extra comma) used to
+    kill the whole run with a raw pandas ParserError. Now such rows are
+    skipped and reported: returns (df, skipped) where ``skipped`` holds the
+    raw text of each skipped row, so callers can show it in the report.
+
+    A file that cannot be parsed at all still raises ValueError with a clean
+    message (callers turn it into ``Error: ...`` + exit 2, never a traceback).
+    """
+    skipped: list[str] = []
+
+    def _on_bad_line(fields: list[str]) -> None:
+        skipped.append(", ".join(fields))
+        return None
+
+    try:
+        # engine="python": the C parser rejects a callable on_bad_lines
+        # (pandas 2+/3.x); shop CSVs are small so the Python engine is fine.
+        df = pd.read_csv(source, dtype=str, keep_default_na=True,
+                         on_bad_lines=_on_bad_line, engine="python")
+    except pd.errors.ParserError as exc:
+        raise ValueError(f"Could not parse CSV: {exc}") from exc
+    return df, skipped
+
+
 def load_csv(path: str) -> pd.DataFrame:
     """Read a CSV with everything as text (coercion happens in the pipeline)."""
-    return pd.read_csv(path, dtype=str, keep_default_na=True)
+    df, _ = load_csv_lenient(path)
+    return df
