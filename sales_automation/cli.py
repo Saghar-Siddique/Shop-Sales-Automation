@@ -130,7 +130,11 @@ def main(argv: list[str] | None = None) -> int:
         column_mapping=mapping,
     )
 
-    raw = load_csv(args.input)
+    try:
+        raw = load_csv(args.input)
+    except OSError as exc:
+        print(f"Error: Cannot read input file {args.input!r}: {exc}", file=sys.stderr)
+        return 2
     if mapping is None:
         present = {str(c).strip().lower() for c in raw.columns}
         if not present & {"date", "item", "qty", "price"}:

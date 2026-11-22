@@ -37,3 +37,17 @@ def test_dashboard_column_mapping_bad_header_shows_error():
     assert not at.exception
     assert at.error
     assert "Nope" in at.error[0].value
+
+
+def test_dashboard_unmapped_headers_shows_warning():
+    # Regression (QA Nov 2026): an uploaded CSV with unrecognised headers
+    # silently zeroed the dashboard with no hint about column mapping.
+    at = AppTest.from_file(str(APP)).run()
+    assert not at.exception
+    alt = Path(__file__).resolve().parent.parent / "data" / "sales_messy_alt.csv"
+    at.sidebar.file_uploader[0].set_value(
+        [("sales_messy_alt.csv", alt.read_bytes(), "text/csv")]
+    ).run()
+    assert not at.exception
+    assert at.warning
+    assert "Column mapping" in at.warning[0].value

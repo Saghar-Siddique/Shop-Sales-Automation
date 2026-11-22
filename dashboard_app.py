@@ -73,6 +73,12 @@ try:
 except ValueError as exc:
     st.error(f"⚠️ {exc}")
     st.stop()
+if mapping is None:
+    present = {str(c).strip().lower() for c in raw.columns}
+    if not present & {"date", "item", "qty", "price"}:
+        st.warning("⚠️ None of the expected columns (Date, Item, Qty, Price) "
+                   "were found in this CSV — if it uses different headers, "
+                   "map them in 'Column mapping (optional)' in the sidebar.")
 df, stats, quarantined = result.clean, result.stats, result.quarantined
 k = kpis(df)
 
@@ -94,7 +100,7 @@ with tab_dash:
         if not trend.empty:
             fig = px.line(trend, x="Date", y="Amount", markers=True,
                           labels={"Amount": "Sales (Rs)"})
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         else:
             st.info("No dated transactions to plot.")
     with col2:
@@ -104,7 +110,7 @@ with tab_dash:
             fig = px.bar(top, x="Item", y="Amount", text="Amount",
                          labels={"Amount": "Revenue (Rs)"})
             fig.update_traces(textposition="outside")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         else:
             st.info("No items to rank.")
 
@@ -118,18 +124,18 @@ with tab_quality:
     st.text(quality_report_text(stats, k, len(quarantined)))
     if not quarantined.empty:
         st.subheader("⚠️ Quarantined rows (review before deleting)")
-        st.dataframe(quarantined, use_container_width=True, hide_index=True)
+        st.dataframe(quarantined, width="stretch", hide_index=True)
 
 with tab_data:
     st.subheader("Cleaned sales data")
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width="stretch", hide_index=True)
     csv_bytes = df.to_csv(index=False).encode("utf-8")
     st.download_button("⬇️ Download cleaned CSV", csv_bytes,
                        file_name="sales_clean.csv", mime="text/csv",
-                       use_container_width=True)
+                       width="stretch")
     xlsx_buffer = io.BytesIO()
     save_workbook(df, stats, k, quarantined, xlsx_buffer)
     st.download_button("⬇️ Download cleaned Excel (.xlsx)", xlsx_buffer.getvalue(),
                        file_name="sales_clean.xlsx",
                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                       use_container_width=True)
+                       width="stretch")

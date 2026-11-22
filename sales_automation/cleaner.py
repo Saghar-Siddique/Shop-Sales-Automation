@@ -177,14 +177,27 @@ def coerce_qty(series: pd.Series) -> pd.Series:
     return numeric.round().astype("Int64")
 
 
+_YEAR_FIRST_RE = re.compile(r"^\d{4}[-/.]")
+
+
 def parse_dates(series: pd.Series) -> pd.Series:
     """Parse mixed formats, Pakistani DD/MM/YYYY first.
 
-    Pass 1 uses dayfirst (so 12/10/2026 -> 12 Oct, not 10 Dec).
-    Leftovers (ISO, 'Oct 13 2026', ...) go through a second pass.
+    Pass 0 parses year-first strings (2026-10-12, 2026/10/12, ISO with a
+    time) with an explicit year-first parse. This MUST come before the
+    dayfirst pass: pandas with dayfirst=True infers %Y-%d-%m for ISO
+    strings and silently swaps month/day (2026-10-12 -> 10 Dec 2026)
+    whenever the day is <= 12. Pass 1 uses dayfirst (12/10/2026 -> 12 Oct,
+    not 10 Dec). Leftovers ('Oct 13 2026', ...) go through a third pass.
     """
     s = series.astype("string").str.strip()
-    parsed = pd.to_datetime(s, dayfirst=True, errors="coerce")
+    parsed = pd.Series(pd.NaT, index=s.index, dtype="datetime64[ns]")
+    year_first = s.str.match(_YEAR_FIRST_RE, na=False)
+    if year_first.any():
+        parsed[year_first] = pd.to_datetime(s[year_first], format="mixed", errors="coerce")
+    rest = ~year_first
+    if rest.any():
+        parsed[rest] = pd.to_datetime(s[rest], dayfirst=True, errors="coerce")
     mask = parsed.isna() & s.notna() & (s != "")
     if mask.any():
         parsed = parsed.copy()

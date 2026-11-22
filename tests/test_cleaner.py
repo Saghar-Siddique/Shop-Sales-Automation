@@ -49,6 +49,31 @@ def test_parse_dates_mixed_formats():
     assert pd.isna(out.iloc[3])
 
 
+def test_parse_dates_iso_day_le_12_no_swap():
+    # Regression (QA Nov 2026): ISO dates with day <= 12 were silently
+    # swapped to YYYY-DD-MM by the dayfirst pass (2026-10-12 -> 10 Dec).
+    out = parse_dates(pd.Series(["2026-10-12", "2026-10-05", "2026-10-13"]))
+    assert out.tolist() == [
+        pd.Timestamp("2026-10-12"),
+        pd.Timestamp("2026-10-05"),
+        pd.Timestamp("2026-10-13"),
+    ]
+
+
+def test_parse_dates_iso_and_dmy_same_day_both_orders():
+    # The old bug was order-dependent: which format appeared first decided
+    # the parse. Both orders must give 12 Oct 2026.
+    for first in (["2026-10-12", "12/10/2026"], ["12/10/2026", "2026-10-12"]):
+        out = parse_dates(pd.Series(first))
+        assert out.iloc[0] == out.iloc[1] == pd.Timestamp("2026-10-12")
+
+
+def test_parse_dates_iso_slash_and_time():
+    out = parse_dates(pd.Series(["2026/10/12", "2026-10-12 10:30:00"]))
+    assert out.iloc[0] == pd.Timestamp("2026-10-12")
+    assert out.iloc[1] == pd.Timestamp("2026-10-12 10:30:00")
+
+
 def test_standardize_names_fuzzy():
     s = pd.Series(["Chai", "Chai", "Chai", "Chaai"])
     out, changed = standardize_names(s, cutoff=0.85)
