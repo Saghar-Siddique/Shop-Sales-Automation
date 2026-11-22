@@ -50,3 +50,12 @@ def test_cli_end_to_end(tmp_path):
     assert (out / "report.txt").exists()
     clean = pd.read_csv(out / "sales_clean.csv")
     assert len(clean) == 1  # duplicate removed
+
+
+def test_cli_missing_input_file_clean_error(tmp_path, capsys):
+    # Regression (QA Nov 2026): a nonexistent input dumped a raw traceback.
+    out = tmp_path / "out"
+    assert cli_main([str(tmp_path / "nope.csv"), "-o", str(out)]) == 2
+    captured = capsys.readouterr()
+    assert "Error: Cannot read input file" in captured.err
+    assert "Traceback" not in captured.err
