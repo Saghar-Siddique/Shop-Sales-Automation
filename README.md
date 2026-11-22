@@ -4,7 +4,7 @@
 [![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![CI](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml/badge.svg)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-26%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-50%20passed-brightgreen)](https://github.com/Saghar-Siddique/Shop-Sales-Automation/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 **Messy sales CSV in — clean data, quality report & dashboard out.**
@@ -42,6 +42,15 @@ sales-automation data/sales_messy.csv -o out/
 # Cleaned Data, Summary and Quarantined sheets
 sales-automation data/sales_messy.csv -o out/ --format xlsx
 
+# CSV with different headers? Map them to Date/Item/Qty/Price first.
+# data/sales_messy_alt.csv uses Tarikh/Cheez/Miqdar/Qeemat headers.
+sales-automation data/sales_messy_alt.csv -o out/ \
+  --map date:Tarikh,item:Cheez,qty:Miqdar,price:Qeemat
+
+# Same mapping from a JSON file instead:
+#   {"date": "Tarikh", "item": "Cheez", "qty": "Miqdar", "price": "Qeemat"}
+sales-automation data/sales_messy_alt.csv -o out/ --map-file map.json
+
 # No install? Run the module directly instead:
 python -m sales_automation.cli data/sales_messy.csv -o out/
 
@@ -50,7 +59,26 @@ streamlit run dashboard_app.py
 ```
 
 CLI options: `--no-dedupe`, `--no-standardize`, `--drop-outliers`,
-`--keep-missing`, `--format csv|xlsx`, `-o/--output-dir`.
+`--keep-missing`, `--format csv|xlsx`, `-o/--output-dir`, `--map KEY:HEADER,...`,
+`--map-file FILE`.
+
+## Custom column mapping
+
+The cleaner expects `Date`/`Item`/`Qty`/`Price` headers, but real shop
+exports use different names. A mapping renames them **before** cleaning, so
+dedupe, quarantine, summary and both output formats work unchanged:
+
+- `--map date:Tarikh,item:Cheez,qty:Miqdar,price:Qeemat` — inline,
+  comma-separated `canonical:Header` pairs.
+- `--map-file map.json` — the same mapping as a JSON object.
+- If both are given, `--map` wins. Only the columns you map are renamed;
+  extra columns in the CSV are ignored, not an error.
+- Matching is case-insensitive (`tarikh` matches `Tarikh`), but the
+  canonical targets stay exactly `Date`/`Item`/`Qty`/`Price`.
+- A mapped header missing from the CSV is a clear error naming the missing
+  header and listing the headers actually found (exit code 2).
+- The dashboard has the same mapping as an optional sidebar field
+  ("Column mapping (optional)").
 
 ## Interactive dashboard
 

@@ -8,6 +8,7 @@ Run:  streamlit run dashboard_app.py
 """
 from __future__ import annotations
 
+import argparse
 import io
 
 import pandas as pd
@@ -16,6 +17,7 @@ import streamlit as st
 
 from sales_automation import CleanConfig, clean_sales, load_csv
 from sales_automation.analyzer import daily_trend, kpis, top_items
+from sales_automation.cli import parse_column_map
 from sales_automation.reporter import quality_report_text, save_workbook
 
 st.set_page_config(page_title="Sales Automation Dashboard", page_icon="🏪", layout="wide")
@@ -30,11 +32,27 @@ uploaded = st.sidebar.file_uploader("...or upload your own CSV", type=["csv"])
 remove_dupes = st.sidebar.checkbox("Remove duplicates", value=True)
 standardize = st.sidebar.checkbox("Standardize item names (fuzzy)", value=True)
 drop_outliers = st.sidebar.checkbox("Drop outliers (else just flag)", value=False)
+map_spec = st.sidebar.text_input(
+    "Column mapping (optional)",
+    value="",
+    placeholder="date:Tarikh, item:Cheez",
+    help="If your CSV uses different headers, map them to Date/Item/Qty/Price, "
+         "e.g. date:Tarikh,item:Cheez,qty:Miqdar,price:Qeemat. Case-insensitive.",
+)
+
+mapping = None
+if map_spec.strip():
+    try:
+        mapping = parse_column_map(map_spec)
+    except argparse.ArgumentTypeError as exc:
+        st.error(f"⚠️ Invalid column mapping: {exc}")
+        st.stop()
 
 config = CleanConfig(
     remove_duplicates=remove_dupes,
     standardize_names=standardize,
     drop_outliers=drop_outliers,
+    column_mapping=mapping,
 )
 
 # ------------------------------------------------------------------ data ---
@@ -50,7 +68,11 @@ if not use_sample and uploaded is None:
     st.info("👆 Upload a CSV in the sidebar, or tick 'Use sample messy data'.")
     st.stop()
 
-result = clean_sales(raw, config)
+try:
+    result = clean_sales(raw, config)
+except ValueError as exc:
+    st.error(f"⚠️ {exc}")
+    st.stop()
 df, stats, quarantined = result.clean, result.stats, result.quarantined
 k = kpis(df)
 
