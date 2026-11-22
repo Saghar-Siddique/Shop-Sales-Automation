@@ -15,6 +15,8 @@ messy sales records shopkeepers actually keep (missing values, " CHAI " vs
 turns them into trustworthy data — with a full report of everything it fixed.
 Nothing is deleted silently: bad rows go to quarantine for review.
 
+🔗 **Live Demo:** [shop-sales-automation-saghar.streamlit.app](https://shop-sales-automation-saghar.streamlit.app/)
+
 **Perfect for:** retail shops, distributors, and small businesses that track
 sales in Excel/CSV and need reliable numbers without manual cleanup.
 
@@ -149,3 +151,4 @@ deliberate, not arbitrary. Adversarial distinct-product pairs
 no single threshold separates them with margin. For a money tool a
 *missed* merge (visible as two lines) is safer than a *wrong* merge
 (silently mixed sales totals), so the cutoff favors precision.
+
